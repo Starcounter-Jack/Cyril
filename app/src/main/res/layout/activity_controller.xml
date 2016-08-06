@@ -1,0 +1,170 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:sl="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context="com.example.jack.cyril.Controller"
+    android:id="@+id/contentView">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+   <LinearLayout android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:layout_width="match_parent"
+       android:orientation="vertical">
+
+       <TextView
+         android:text="Storage left"
+         android:textColor="#ffffff"
+         android:textStyle="bold"
+         android:textIsSelectable="false"
+         android:singleLine="true"
+         android:gravity="center_horizontal"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         />
+
+
+    <com.ssomai.android.scalablelayout.ScalableLayout
+        android:layout_width="409dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        app:scale_base_width="900"
+        app:scale_base_height="1600">
+
+
+
+
+        <TextView
+            app:scale_left="0"
+            app:scale_top="0"
+            app:scale_width="900"
+            app:scale_height="50"
+            app:scale_textsize="30"
+            android:id="@+id/latitudeLabel"
+            android:text="Storage left"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            app:scale_left="0"
+            app:scale_top="30"
+            app:scale_width="900"
+            app:scale_height="100"
+            app:scale_textsize="100"
+            android:id="@+id/targetDistanceView"
+            android:text="1,502"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/currentHeadingLabelView"
+            app:scale_left="5"
+            app:scale_top="150"
+            app:scale_width="300"
+            app:scale_height="50"
+            app:scale_textsize="30"
+            android:text="FOV1"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+          <TextView
+            android:id="@+id/currentHeadingView"
+            app:scale_left="0"
+            app:scale_top="180"
+            app:scale_width="300"
+            app:scale_height="100"
+            app:scale_textsize="100"
+            android:text="13°"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+          <TextView
+            android:id="@+id/adjustHeadingLabelView"
+            app:scale_left="300"
+            app:scale_top="150"
+            app:scale_width="300"
+            app:scale_height="50"
+            app:scale_textsize="30"
+            android:text="Adjust"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+          <TextView
+            android:id="@+id/adjustHeadingView"
+            app:scale_left="300"
+            app:scale_top="180"
+            app:scale_width="300"
+            app:scale_height="100"
+            app:scale_textsize="100"
+            android:text="2°"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/targetHeadingLabelView"
+                app:scale_left="600"
+                app:scale_top="150"
+                app:scale_width="300"
+                app:scale_height="50"
+                app:scale_textsize="30"
+                android:text="FOV2"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:textIsSelectable="false"
+                android:singleLine="true"
+                android:gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+              <TextView
+                android:id="@+id/targetHeadingView"
+                app:scale_left="600"
+                app:scale_top="180"
+                app:scale_width="300"
+                app:scale_height="100"
+                app:scale_textsize="100"
+                android:text="15°"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+      </com.ssomai.android.scalablelayout.ScalableLayout>
+    </LinearLayout>
+
+</FrameLayout>

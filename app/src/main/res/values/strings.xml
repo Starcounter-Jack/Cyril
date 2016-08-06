@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GoPro Recorder</string>
+
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>

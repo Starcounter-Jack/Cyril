@@ -1,0 +1,303 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#000000"
+    tools:context="com.example.jack.cyril.Controller"
+    android:id="@+id/contentView">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="4"
+        android:rowCount="10"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:layout_marginTop="0dp"
+            android:id="@+id/latitudeLabel"
+            android:keepScreenOn="true"
+            android:text="Camera Time"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+
+            android:gravity="center_horizontal"
+            android:layout_column="0"
+            android:layout_columnSpan="4"
+            android:layout_row="0"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/targetDistanceView"
+
+            android:keepScreenOn="true"
+            android:text="1,502"
+            android:textColor="#ffffff"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="4"
+            android:layout_column="0"
+            android:layout_row="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+        <TextView
+            android:id="@+id/latitudeLabel"
+            android:keepScreenOn="true"
+            android:text="Time"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="4"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/fullscreen_time"
+
+            android:keepScreenOn="true"
+            android:text="12:31"
+            android:textColor="#ffffff"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="4"
+            android:layout_row="4"
+            android:layout_column="0"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginTop="0dp"
+            android:id="@+id/textView2"
+            android:keepScreenOn="true"
+            android:text="FOV"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="2"
+            android:layout_column="0"
+            android:layout_row="5"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/textView3"
+
+            android:keepScreenOn="true"
+            android:text="13°"
+            android:textColor="#ffffff"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="2"
+            android:layout_column="0"
+            android:layout_row="6"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_marginTop="0dp"
+            android:id="@+id/textView5"
+            android:keepScreenOn="true"
+            android:text="Tilt"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="2"
+            android:layout_column="2"
+            android:layout_row="5"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/textView4"
+
+            android:keepScreenOn="true"
+            android:text="13°"
+            android:textColor="#ffffff"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:layout_columnSpan="2"
+            android:layout_column="2"
+            android:layout_row="6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/longitudeLabel"
+            android:keepScreenOn="true"
+            android:text="X"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+            android:layout_column="0"
+            android:layout_row="7"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/longitudeView"
+            android:keepScreenOn="true"
+            android:text="123"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="true"
+            android:singleLine="true"
+            android:layout_column="1"
+            android:layout_row="7"
+            android:layout_marginTop="10dp"
+            android:layout_width="100sp"
+            android:layout_height="wrap_content" />
+
+
+        <TextView
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/latitudeView"
+            android:keepScreenOn="true"
+            android:text="Y"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+            android:layout_column="0"
+            android:layout_row="8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/latitu"
+            android:keepScreenOn="true"
+            android:text="456"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="true"
+            android:singleLine="true"
+            android:layout_column="1"
+            android:layout_row="8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/accuracyLabelView"
+            android:keepScreenOn="true"
+            android:text="Accuracy"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="false"
+            android:singleLine="true"
+            android:layout_column="2"
+            android:layout_row="7"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/accuracyView"
+            android:keepScreenOn="true"
+            android:text="x m"
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textIsSelectable="true"
+            android:singleLine="true"
+            android:layout_column="3"
+            android:layout_row="7"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/fullscreen_content_controls"
+        style="?metaButtonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:background="@color/black_overlay"
+        android:orientation="horizontal"
+        tools:ignore="UselessParent"
+        android:gravity="bottom">
+
+        <Button
+            android:id="@+id/previous_button"
+            style="?metaButtonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/previous" />
+        <Button
+            android:id="@+id/next_button"
+            style="?metaButtonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/next" />
+        <Button
+            android:id="@+id/action_button"
+            style="?metaButtonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="" />
+
+    </LinearLayout><![CDATA[
+
+
+    android:fitsSystemWindows. -->
+
+]]>
+</FrameLayout>
