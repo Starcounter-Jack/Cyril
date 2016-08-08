@@ -53,6 +53,7 @@ public class Track {
     }
 
     public void Insert() {
+        Log.d("Cyril.Db","Inserting Track");
         mDb.beginTransaction();
         mInsertStmt.bindLong(Col_TrackId, TrackId);
         mInsertStmt.bindLong(Col_BaseTime, BaseTime );

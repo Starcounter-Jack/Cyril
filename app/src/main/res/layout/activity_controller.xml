@@ -1,170 +1,656 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:sl="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/contentView"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:background="#000000"
     tools:context="com.example.jack.cyril.Controller"
-    android:id="@+id/contentView">
+    style="@style/FullscreenTheme">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
 
-   <LinearLayout android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:layout_width="match_parent"
-       android:orientation="vertical">
-
-       <TextView
-         android:text="Storage left"
-         android:textColor="#ffffff"
-         android:textStyle="bold"
-         android:textIsSelectable="false"
-         android:singleLine="true"
-         android:gravity="center_horizontal"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         />
 
 
     <com.ssomai.android.scalablelayout.ScalableLayout
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@android:color/black"
-        app:scale_base_width="900"
-        app:scale_base_height="1600">
-
-
-
+        app:scale_base_height="1600"
+        app:scale_base_width="900">
 
         <TextView
-            app:scale_left="0"
+            android:text="Marker"
+            android:id="@+id/targetLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="150"
+            app:scale_textsize="30"
             app:scale_top="0"
-            app:scale_width="900"
-            app:scale_height="50"
-            app:scale_textsize="30"
-            android:id="@+id/latitudeLabel"
-            android:text="Storage left"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
-            android:textIsSelectable="false"
-            android:singleLine="true"
-            android:gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            app:scale_width="300" />
 
         <TextView
-            app:scale_left="0"
+            android:text="24/24"
+            android:id="@+id/currentTargetView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="110"
+            app:scale_left="150"
+            app:scale_textsize="70"
             app:scale_top="30"
-            app:scale_width="900"
-            app:scale_height="100"
-            app:scale_textsize="100"
-            android:id="@+id/targetDistanceView"
-            android:text="1,502"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
-            android:singleLine="true"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            app:scale_width="300" />
+
 
         <TextView
-            android:id="@+id/currentHeadingLabelView"
+            android:text="Accuracy"
+            android:id="@+id/accuracyLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="600"
+            app:scale_textsize="30"
+            app:scale_top="0"
+            app:scale_width="300" />
+
+
+        <TextView
+            android:text="6m"
+            android:id="@+id/accuracyView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="110"
+            app:scale_left="600"
+            app:scale_textsize="70"
+            app:scale_top="30"
+            app:scale_width="300" />
+
+
+        <TextView
+            android:text="Course"
+            android:id="@+id/courseLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
             app:scale_left="5"
-            app:scale_top="150"
-            app:scale_width="300"
-            app:scale_height="50"
             app:scale_textsize="30"
-            android:text="FOV1"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
-            android:textIsSelectable="false"
-            android:singleLine="true"
-            android:gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            app:scale_top="155"
+            app:scale_width="300" />
 
-          <TextView
-            android:id="@+id/currentHeadingView"
-            app:scale_left="0"
-            app:scale_top="180"
-            app:scale_width="300"
-            app:scale_height="100"
-            app:scale_textsize="100"
+        <TextView
             android:text="13°"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
-            android:singleLine="true"
-            android:gravity="center_horizontal"
+            android:id="@+id/courseView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-          <TextView
-            android:id="@+id/adjustHeadingLabelView"
-            app:scale_left="300"
-            app:scale_top="150"
-            app:scale_width="300"
-            app:scale_height="50"
-            app:scale_textsize="30"
-            android:text="Adjust"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
             android:textColor="#ffffff"
             android:textStyle="bold"
-            android:textIsSelectable="false"
-            android:singleLine="true"
-            android:gravity="center_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-          <TextView
-            android:id="@+id/adjustHeadingView"
-            app:scale_left="300"
-            app:scale_top="180"
-            app:scale_width="300"
-            app:scale_height="100"
+            app:scale_height="110"
+            app:scale_left="0"
             app:scale_textsize="100"
-            android:text="2°"
+            app:scale_top="181"
+            app:scale_width="300" />
+
+        <TextView
+            android:text="Heading"
+            android:id="@+id/headingLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="300"
+            app:scale_textsize="30"
+            app:scale_top="155"
+            app:scale_width="300" />
+
+
+        <TextView
+            android:text="12°"
+            android:id="@+id/headingView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
             android:textColor="#ffffff"
             android:textStyle="bold"
-            android:singleLine="true"
+            app:scale_height="110"
+            app:scale_left="300"
+            app:scale_textsize="100"
+            app:scale_top="181"
+            app:scale_width="300" />
+
+        <TextView
+            android:text="Target"
+            android:id="@+id/targetHeadingLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="600"
+            app:scale_textsize="30"
+            app:scale_top="155"
+            app:scale_width="300" />
+
+        <TextView
+            android:text="15°"
+            android:id="@+id/targetHeadingView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="110"
+            app:scale_left="600"
+            app:scale_textsize="100"
+            app:scale_top="181"
+            app:scale_width="300" />
 
-            <TextView
-                android:id="@+id/targetHeadingLabelView"
-                app:scale_left="600"
-                app:scale_top="150"
-                app:scale_width="300"
-                app:scale_height="50"
-                app:scale_textsize="30"
-                android:text="FOV2"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:textIsSelectable="false"
-                android:singleLine="true"
-                android:gravity="center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+        <TextView
+            android:text="Target distance"
+            android:id="@+id/targetDistanceLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="150"
+            app:scale_textsize="30"
+            app:scale_top="329"
+            app:scale_width="600" />
 
-              <TextView
-                android:id="@+id/targetHeadingView"
-                app:scale_left="600"
-                app:scale_top="180"
-                app:scale_width="300"
-                app:scale_height="100"
-                app:scale_textsize="100"
-                android:text="15°"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:gravity="center_horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+        <TextView
+            android:text="1,502 m"
+            android:id="@+id/targetDistanceView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="170"
+            app:scale_left="150"
+            app:scale_textsize="150"
+            app:scale_top="345"
+            app:scale_width="600" />
 
-      </com.ssomai.android.scalablelayout.ScalableLayout>
-    </LinearLayout>
+        <TextView
+            android:text="Offset lon"
+            android:id="@+id/offsetLongitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="560"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="100"
+            android:id="@+id/offsetLongitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="560"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Offset lat."
+            android:id="@+id/offsetLatitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="610"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="200"
+            android:id="@+id/offsetLatitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="610"
+            app:scale_width="600" />
+
+
+        <TextView
+            android:text="Longitude"
+            android:id="@+id/longitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="560"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="101.123456"
+            android:id="@+id/longitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="560"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Latitude"
+            android:id="@+id/latitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="610"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="123.999999"
+            android:id="@+id/latitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="610"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Start"
+            android:id="@+id/travelledLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="660"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="125,859m"
+            android:id="@+id/travelledView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="660"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Finish"
+            android:id="@+id/goalDistanceLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="660"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="489,614m"
+            android:id="@+id/goalDistanceView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="660"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Target lon"
+            android:id="@+id/targetOffsetLongitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="710"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="100"
+            android:id="@+id/targetOffsetLongitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="710"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Target lat"
+            android:id="@+id/targetOffsetLatitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="760"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="200"
+            android:id="@+id/targetOffsetLatitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="760"
+            app:scale_width="600" />
+
+
+        <TextView
+            android:text="Target lon"
+            android:id="@+id/targetLongitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="710"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="101.123456"
+            android:id="@+id/targetLongitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="710"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Target lat"
+            android:id="@+id/largetLatitudeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="760"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="123.999999"
+            android:id="@+id/targetLatitudeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="760"
+            app:scale_width="600" />
+
+
+        <TextView
+            android:text="Locations"
+            android:id="@+id/locationCountLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="810"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="1000"
+            android:id="@+id/locationCountView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="810"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Recording"
+            android:id="@+id/recordingTimeLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="810"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="1:10:24"
+            android:id="@+id/recordingTimeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="810"
+            app:scale_width="600" />
+
+
+        <TextView
+            android:text="Approaching 25"
+            android:id="@+id/modeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:textColor="#00ff88"
+            android:textStyle="bold"
+            app:scale_height="140"
+            app:scale_left="0"
+            app:scale_textsize="100"
+            app:scale_top="950"
+            app:scale_width="900" />
+
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/modeToggleView"
+            app:scale_width="225"
+            app:scale_height="225"
+            app:scale_left="0"
+            app:scale_top="1375"
+            android:onClick="onClickModeButton" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/previousButtonView"
+            app:scale_width="225"
+            app:scale_height="225"
+            app:scale_left="225"
+            app:scale_top="1375"
+            android:onClick="onClickPreviousButton" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/actionButtonView"
+            app:scale_width="225"
+            app:scale_height="225"
+            app:scale_left="450"
+            app:scale_top="1375"
+            android:onClick="onClickActionButton" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/nextButtonView"
+            app:scale_width="300"
+            app:scale_height="225"
+            app:scale_left="675"
+            app:scale_top="1375"
+            android:onClick="onClickNextButton" />
+
+
+    </com.ssomai.android.scalablelayout.ScalableLayout>
+
+
+
+
+
 
 </FrameLayout>

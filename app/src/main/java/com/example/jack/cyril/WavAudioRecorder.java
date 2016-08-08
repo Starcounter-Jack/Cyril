@@ -39,7 +39,7 @@ public class WavAudioRecorder {
 
     // The interval in which the recorded samples are output to the file
     // Used only in uncompressed mode
-    private static final int TIMER_INTERVAL = 500;
+    private static final int TIMER_INTERVAL = 120;
 
     // Recorder used for uncompressed recording
     private AudioRecord     audioRecorder = null;
@@ -82,6 +82,12 @@ public class WavAudioRecorder {
         return state;
     }
 
+    private AudioRecord.OnRecordPositionUpdateListener externalUpdateListener;
+
+    public void setUpdateListener(AudioRecord.OnRecordPositionUpdateListener l) {
+        externalUpdateListener = l;
+    }
+
 
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
         //	periodic updates on the progress of the record head
@@ -90,8 +96,11 @@ public class WavAudioRecorder {
                 Log.d("Cyril", "recorder stopped");
                 return;
             }
+            if (externalUpdateListener != null ) {
+                externalUpdateListener.onPeriodicNotification(recorder);
+            }
             int numOfBytes = audioRecorder.read(buffer, 0, buffer.length); // read audio data to buffer
-			Log.d("Cyril", state + ":" + numOfBytes);
+			//Log.d("Cyril", state + ":" + numOfBytes);
             try {
                 randomAccessWriter.write(buffer); 		  // write audio data to file
                 payloadSize += buffer.length;
@@ -103,8 +112,12 @@ public class WavAudioRecorder {
         }
         //	reached a notification marker set by setNotificationMarkerPosition(int)
         public void onMarkerReached(AudioRecord recorder) {
+            if (externalUpdateListener != null) {
+                externalUpdateListener.onMarkerReached(recorder);
+            }
         }
     };
+
     /**
      *
      *
