@@ -18,9 +18,11 @@ import org.json.JSONObject;
 import java.io.File;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 
 public class TrackRecorder {
@@ -33,12 +35,14 @@ public class TrackRecorder {
     public enum Mode {
         Leg,
         Freeriding,
-        Backtracking
+        Backtracking_Free,
+        Backtracking_Leg,
+        Error
     }
 
     Mode mCurrentMode;
 
-    private int mCurrentLegNo = 1;
+    //private int mCurrentWaypoint = 1;
     private static int mNextTrackId = -1;
 
     private double mTravelled = 0;
@@ -60,8 +64,10 @@ public class TrackRecorder {
     private long mLocationCount = 0;
     private AudioRecord.OnRecordPositionUpdateListener mAudioUpdateListener;
     private Vector<Marker> mMarkers = new Vector<Marker>();
-    private Vector<WayPoint> mLegs = new Vector<WayPoint>();
+    private Vector<WayPoint> mWayPoints = new Vector<WayPoint>();
     private int mFocusedMarker = 1;
+    private int mFocusedWayPoint = 0;
+    private CappedVector<TrackEntry> mLastEntries = new CappedVector<TrackEntry>(1000);
 
     private UpdateListener mExternalUpdateListener;
 
@@ -74,9 +80,26 @@ public class TrackRecorder {
     public Marker getFocusedMarker() {
         return mMarkers.get(mFocusedMarker);
     }
+    public WayPoint getFocusedWayPoint() {
+        if (mFocusedWayPoint >= mWayPoints.size()) {
+            return null;
+        }
+        return mWayPoints.get(mFocusedWayPoint);
+    }
+
+    public WayPoint getNextWayPoint() {
+        int i = mFocusedWayPoint+1;
+        if (i >= mWayPoints.size()) {
+            return null;
+        }
+        return mWayPoints.get(i);
+    }
 
     public int getFocusedMarkerNo() {
         return mFocusedMarker;
+    }
+    public int getFocusedWayPointNo() {
+        return mFocusedWayPoint;
     }
 
     public Track getTrack() {
@@ -85,29 +108,11 @@ public class TrackRecorder {
 
     public TrackRecorder( LocationManager lm, Context c ) {
 
+       // CappedVector.test();
+
         mCurrentMode = TrackRecorder.Mode.Freeriding;
 
-        LocationListener l = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                mExternalUpdateListener.onUpdate(true);
-            }
 
-            @Override
-            public void onProviderDisabled(String str) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String str) {
-
-            }
-
-            @Override
-            public void onStatusChanged(String str, int i, Bundle b) {
-
-            }
-        };
         //mListener = l;
         locationManager = lm;
         mContext = c;
@@ -130,7 +135,7 @@ public class TrackRecorder {
     private long startAudioRecording() {
 
         String fileName = mFileDirectory + "/" + getFileStub() + ".wav";
-        mRecorder = WavAudioRecorder.getInstance();
+        mRecorder = WavAudioRecorder.getInstance(mContext);
         //mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         //mRecorder.setAudioChannels(1);
         //mRecorder.setAudioSamplingRate(48000);
@@ -165,6 +170,78 @@ public class TrackRecorder {
 
     }
 
+    public void hitAction() {
+        switch (mCurrentMode) {
+            case Leg:
+                //long now = getTimeOfDay();
+                long now = getNowTimeOffset() - 300;
+                Log.d( "Cyril", "Pressed at "  + formatTime(now,true) );
+                mFocusedWayPoint++;
+                say("At " + mFocusedWayPoint+"! " + getApproachingString(true));
+                break;
+            case Freeriding:
+                createMarker();
+                goForward();
+                break;
+            case Backtracking_Free:
+                say("Tracking");
+                break;
+            case Backtracking_Leg:
+                say("Tracking " + mFocusedWayPoint + "!");
+                break;
+
+        }
+    }
+
+    public void hitPrevious() {
+        goBackward();
+        switch (mCurrentMode) {
+            case Leg:
+                say( getApproachingString(true) );
+                break;
+        }
+    }
+
+    public void goBackward() {
+        switch (mCurrentMode) {
+            case Leg:
+                if (mFocusedWayPoint>0) {
+                    mFocusedWayPoint--;
+                    mExternalUpdateListener.onUpdate(false);
+                }
+                break;
+            case Freeriding:
+                mFocusedMarker--;
+                mExternalUpdateListener.onUpdate(false);
+                break;
+        }
+
+    }
+
+    public void hitNext() {
+        goForward();
+        switch (mCurrentMode) {
+            case Leg:
+                say( getApproachingString(true) );
+                break;
+        }
+
+    }
+
+    public void goForward() {
+        switch (mCurrentMode) {
+            case Leg:
+                mFocusedWayPoint++;
+                mExternalUpdateListener.onUpdate(false);
+                break;
+            case Freeriding:
+                mFocusedMarker++;
+                mExternalUpdateListener.onUpdate(false);
+                break;
+        }
+
+    }
+
     public void start() {
 
         t1 = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
@@ -176,8 +253,12 @@ public class TrackRecorder {
                 }
             }
         });
+        //t1.setEngineByPackageName("com.google.tts");
 
-        readJson();
+
+
+
+        mNextTrackId = calculateNextTrackId();
 
         long baseTime = startAudioRecording();
 
@@ -185,6 +266,10 @@ public class TrackRecorder {
             throw new IllegalStateException("Recording was stopped. Cannot restart.");
         }
         initDb();
+
+        readJson();
+
+
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0,locationListener);
         mTrack = new Track(db);
         mTrack.BaseTime = (baseTime);
@@ -198,31 +283,58 @@ public class TrackRecorder {
         //mExternalUpdateListener.onUpdate(false);
     }
 
-    public void toggleMode() {
+    public void hitToggleMode() {
         switch (mCurrentMode) {
             case Leg:
                 mCurrentMode = Mode.Freeriding;
                 break;
             case Freeriding:
-                mCurrentMode = Mode.Backtracking;
+                mCurrentMode = Mode.Backtracking_Free;
                 break;
-            case Backtracking:
+            case Backtracking_Free:
+                mCurrentMode = Mode.Backtracking_Leg;
+                break;
+            case Backtracking_Leg:
                 mCurrentMode = Mode.Leg;
                 break;
         }
         sayMode();
+        mExternalUpdateListener.onUpdate(false);
+    }
+
+
+    public Mode getCurrentMode() {
+        return mCurrentMode;
+    }
+
+
+    public String getApproachingString(Boolean full) {
+        String str = "Approaching " + Integer.toString(mFocusedWayPoint + 1);
+        if (full) {
+            WayPoint wp = getNextWayPoint();
+            str += ", " + wp.Description + "," + wp.Direction;
+        }
+        return str;
     }
 
     public String getCurrentModeString() {
         String str;
         switch (mCurrentMode) {
-            case Backtracking:
-                str = "Backtracking";
+            case Backtracking_Free:
+                str = "Backtracking Free";
+                break;
+            case Backtracking_Leg:
+                str = "Backtracking Leg";
                 break;
             case Freeriding:
-                str = "Freeride";
+                str = "Freeriding";
+                break;
             case Leg:
-                str = "Approaching 14"; // TODO!
+                str = getApproachingString(false);
+                break;
+            case Error:
+                str = "Error";
+                break;
             default:
                 str = "Unknown";
         }
@@ -231,13 +343,21 @@ public class TrackRecorder {
 
     public void sayMode() {
         switch (mCurrentMode) {
-            case Backtracking:
-                say("Backtracking");
+            case Backtracking_Leg:
+                say("Backtracking leg");
+                break;
+            case Backtracking_Free:
+                say("Backtracking free");
                 break;
             case Freeriding:
-                say("Freeriding");
+                say("Free riding");
+                break;
             case Leg:
-                say("Approaching 14"); // TODO!
+                say(getApproachingString(true));
+                break;
+            case Error:
+                say("Error");
+                break;
         }
     }
 
@@ -280,6 +400,7 @@ public class TrackRecorder {
             if (mOlderLocation == null) {
                 mFirstLocation = location;
             }
+            mRecorder.checkPoint();
            // mListener.onLocationChanged(location);
             mExternalUpdateListener.onUpdate(true);
         }
@@ -305,7 +426,7 @@ public class TrackRecorder {
         String str;
 
         try {
-            File file = new File(mFileDirectory = "/cyril.json");
+            File file = new File(mFileDirectory + "/cyril.json");
 
             byte[] fileBytes = FileHelper.readBytes(file);
 
@@ -313,27 +434,41 @@ public class TrackRecorder {
         }
         catch (Exception e) {
             Log.e("Cyril",e.getMessage());
+            mCurrentMode = Mode.Error;
+            return;
         }
 
-        str = "{ \"roadBook\": [ { \"lon\":102.123456 } ]}";
+        //str = "{ \"roadBook\": [ { \"lon\":102.123456 } ]}";
         try {
             JSONObject obj = new JSONObject(str);
             //JSONArray arr = new JSONArray(str);
             JSONArray arr = obj.getJSONArray("roadBook");
             for (int t = 0; t < arr.length(); t++) {
                 JSONObject elem = arr.getJSONObject(t);
-                Log.d("Cyril","Parsing longitude " + Double.toString(elem.getDouble("lon")));
-                Log.d("Cyril","Parsing latitude " + elem.getDouble("lat"));
+                int no = elem.getInt("no");
+                double lon = elem.getDouble("lon");
+                double lat = elem.getDouble("lat");
+                WayPoint wp = new WayPoint(db);
+                wp.Latitude = lat;
+                wp.Longitude = lon;
+                wp.Status = WayPointStatus.NotVisited;
+                wp.WayPointId = no;
+                wp.Description = elem.getString("descr");
+                wp.Direction = elem.getString("dir");
+                wp.TotalDistance = elem.getDouble("odo");
+                mWayPoints.add( wp );
+//                Log.d("Cyril","Parsing longitude " + Double.toString());
+//                Log.d("Cyril","Parsing latitude " + elem.getDouble("lat"));
             }
         }
         catch (JSONException e ) {
             Log.e("Cyril",e.getMessage());
+            mCurrentMode = Mode.Error;
         }
     }
 
 
     private void initDb() {
-        mNextTrackId = calculateNextTrackId();
 
         String fileName = mFileDirectory + "/" + getFileStub() + ".sqlite";
         Log.d("Cyril.Db","Creating database " + fileName);
@@ -345,22 +480,11 @@ public class TrackRecorder {
         db = SQLiteDatabase.openOrCreateDatabase(fileName, null);
     }
 
-    public void goBackward() {
-
-        Log.d("Cyil","Going backward");
-        mFocusedMarker--;
-        mExternalUpdateListener.onUpdate(false);
-    }
 
     public double getTravellDistance() {
         return mTravelled;
     }
 
-    public void goForward() {
-        Log.d("Cyril","Going forward");
-        mFocusedMarker++;
-        mExternalUpdateListener.onUpdate(false);
-    }
 
     public void foobar() {
 
@@ -400,6 +524,10 @@ public class TrackRecorder {
 
     public int getMarkerCount() {
         return mMarkers.size();
+    }
+
+    public int getWayPointCount() {
+        return mWayPoints.size();
     }
 
     public void release() {
@@ -450,6 +578,45 @@ public class TrackRecorder {
     public static String getFileStub() {
 
         return "Track" + Integer.toString(mNextTrackId).toString();
+    }
+
+
+
+    static String formatTime( long millis, Boolean fractions ) {
+
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+        if (fractions ) {
+            return String.format("%02d:%02d:%02d:%02d",
+                    hours,
+                    minutes - TimeUnit.HOURS.toMinutes(hours),
+                    seconds - TimeUnit.MINUTES.toSeconds(minutes),
+                    millis - TimeUnit.SECONDS.toMillis(seconds)
+            );
+        }
+        return String.format("%02d:%02d:%02d:%02d",
+                hours,
+                minutes - TimeUnit.HOURS.toMinutes(hours),
+                seconds - TimeUnit.MINUTES.toSeconds(minutes));
+    }
+
+    static String formatDistance( double m, Boolean showDecimal ) {
+        if (showDecimal) {
+            return String.format(Locale.US, "%1$,.1f", m) + "m";
+        }
+        return String.format(Locale.US, "%1$,.0f", m) + "m";
+    }
+
+    long getTimeOfDay() {
+        Calendar c = Calendar.getInstance();
+        long now = c.getTimeInMillis();
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        long passed = now - c.getTimeInMillis();
+        return passed;
     }
 
 }

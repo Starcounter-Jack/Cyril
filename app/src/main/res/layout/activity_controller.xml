@@ -588,6 +588,68 @@
             app:scale_top="810"
             app:scale_width="600" />
 
+        <TextView
+            android:text="Foo"
+            android:id="@+id/fooLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="0"
+            app:scale_textsize="40"
+            app:scale_top="860"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="1000"
+            android:id="@+id/fooView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="230"
+            app:scale_textsize="40"
+            app:scale_top="860"
+            app:scale_width="600" />
+
+        <TextView
+            android:text="Time"
+            android:id="@+id/timeOfDayLabelView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#888888"
+            android:textIsSelectable="false"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="450"
+            app:scale_textsize="40"
+            app:scale_top="860"
+            app:scale_width="225" />
+
+        <TextView
+            android:text="23:10:00"
+            android:id="@+id/timeOfDayView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            app:scale_height="50"
+            app:scale_left="680"
+            app:scale_textsize="40"
+            app:scale_top="860"
+            app:scale_width="600" />
+
 
         <TextView
             android:text="Approaching 25"
@@ -625,15 +687,7 @@
             app:scale_top="1375"
             android:onClick="onClickPreviousButton" />
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/actionButtonView"
-            app:scale_width="225"
-            app:scale_height="225"
-            app:scale_left="450"
-            app:scale_top="1375"
-            android:onClick="onClickActionButton" />
+
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -641,9 +695,19 @@
             android:id="@+id/nextButtonView"
             app:scale_width="300"
             app:scale_height="225"
-            app:scale_left="675"
+            app:scale_left="450"
             app:scale_top="1375"
             android:onClick="onClickNextButton" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/actionButtonView"
+            app:scale_width="225"
+            app:scale_height="225"
+            app:scale_left="675"
+            app:scale_top="1375"
+            android:onClick="onClickActionButton" />
 
 
     </com.ssomai.android.scalablelayout.ScalableLayout>

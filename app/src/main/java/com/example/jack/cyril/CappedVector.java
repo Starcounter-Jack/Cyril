@@ -1,5 +1,7 @@
 package com.example.jack.cyril;
 
+import android.util.Log;
+
 /**
  * Created by jack on 08/08/2016.
  */
@@ -8,7 +10,7 @@ public class CappedVector<T> {
     private int mSize = 0;
     private final int mMaxSize;
     private final Object[] mElements;
-    private int mStart = -1;
+    private int mStart = 0;
 
     
     public static String testString( CappedVector<String> v ) {
@@ -18,63 +20,67 @@ public class CappedVector<T> {
         }
         return str;
     }
+
+    private static void ass( Boolean b ) {
+        if (!b) {
+            throw new RuntimeException("Assert failed");
+        }
+    }
     
     public static void test() {
         CappedVector<String> v = new CappedVector<String>(10);
-        assert( v.size() == 0 );
-        assert( testString(v).equals("") );
+        ass( v.size() == 0 );
+        ass( testString(v).equals("") );
         v.add("a");
-        assert( v.size() == 1 );
-        assert( testString(v).equals("a") );
+        ass( v.size() == 1 );
+        ass( testString(v).equals("a") );
         v.add("b");
-        assert( v.size() == 2 );
-        assert( testString(v).equals("ab") );
+        ass( v.size() == 2 );
+        ass( testString(v).equals("ab") );
         v.add("c");
-        assert( v.size() == 3 );
-        assert( testString(v).equals("abc") );
+        ass( v.size() == 3 );
+        ass( testString(v).equals("abc") );
         v.add("d");
-        assert( v.size() == 4 );
-        assert( testString(v).equals("abcd") );
+        ass( v.size() == 4 );
+        ass( testString(v).equals("abcd") );
         v.add("e");
-        assert( v.size() == 5 );
-        assert( testString(v).equals("abcde") );
+        ass( v.size() == 5 );
+        ass( testString(v).equals("abcde") );
         v.add("f");
-        assert( v.size() == 6 );
-        assert( testString(v).equals("abcdef") );
+        ass( v.size() == 6 );
+        ass( testString(v).equals("abcdef") );
         v.add("g");
-        assert( v.size() == 7 );
-        assert( testString(v).equals("abcdefg") );
+        ass( v.size() == 7 );
+        ass( testString(v).equals("abcdefg") );
         v.add("h");
-        assert( v.size() == 8 );
-        assert( testString(v).equals("abcdefgh") );
-        assert( v.get(0).equals("a"));
-        assert( v.get(7).equals("h"));
+        ass( v.size() == 8 );
+        ass( testString(v).equals("abcdefgh") );
+        ass( v.get(0).equals("a"));
+        ass( v.get(7).equals("h"));
         v.add("i");
-        assert( v.size() == 9 );
-        assert( testString(v).equals("abcdefghi") );
-        assert( v.get(0).equals("a"));
-        assert( v.get(8).equals("i"));
+        ass( v.size() == 9 );
+        ass( testString(v).equals("abcdefghi") );
+        ass( v.get(0).equals("a"));
+        ass( v.get(8).equals("i"));
         v.add("j");
-        assert( v.size() == 10 );
-        assert( testString(v).equals("abcdefghij") );
-        assert( v.get(0).equals("a"));
-        assert( v.get(9).equals("j"));
+        ass( v.size() == 10 );
+        ass( testString(v).equals("abcdefghij") );
+        ass( v.get(0).equals("a"));
+        ass( v.get(9).equals("j"));
         v.add("k");
-        assert( v.size() == 11 );
-        assert( v.get(0).equals("b"));
-        assert( v.get(9).equals("k"));
-        assert( testString(v).equals("bcdefghijk") );
+        ass( v.size() == 10 );
+        ass( v.get(0).equals("b"));
+        ass( v.get(9).equals("k"));
+        ass( testString(v).equals("bcdefghijk") );
         v.add("l");
-        assert( v.size() == 12 );
-        assert( v.get(0).equals("c"));
-        assert( v.get(9).equals("l"));
-        assert( testString(v).equals("cdefghijl") );
+        ass( v.size() == 10 );
+        ass( v.get(0).equals("c"));
+        ass( v.get(9).equals("l"));
+        ass( testString(v).equals("cdefghijkl") );
+        Log.d("Cyril","Capped vector " + testString(v));
     }
 
     public CappedVector( int maxSize ) {
-
-        test();
-
         mMaxSize = maxSize;
         mElements = new Object[maxSize];
     }
@@ -91,7 +97,12 @@ public class CappedVector<T> {
             if (mStart == mMaxSize) {
                 mStart = 0;
             }
-            mElements[mStart] = element;
+            if (mStart>0) {
+                mElements[mStart-1] = element;
+            }
+            else {
+                mElements[mMaxSize-1] = element;
+            }
         }
     }
 
@@ -105,7 +116,7 @@ public class CappedVector<T> {
         //       !
         int i = mStart + index; // 3+2
         if (i >= mMaxSize) {
-            i = index - (mMaxSize - mStart);
+            i -= (mMaxSize);
         }
         return (T)mElements[i];
     }

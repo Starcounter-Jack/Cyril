@@ -4,24 +4,103 @@ package com.example.jack.cyril;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
 
+import android.content.Context;
+import android.content.Intent;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
+import android.os.Bundle;
+/*
+import android.speech.RecognitionListener;
+import android.speech.SpeechRecognizer;
+*/
 import android.util.Log;
 
-public class WavAudioRecorder {
-    private final static int[] sampleRates = {48000, 44100, 22050, 11025, 8000};
+public class WavAudioRecorder { // implements RecognitionListener {
+    private final static int[] sampleRates = {48000, 44100, 22050, 11025, 16000, 8000};
+    //private Yin mPitchDetector;
 
-    public static WavAudioRecorder getInstance() {
+    /*
+    private SpeechRecognizer mSpeech = null;
+    private Intent recognizerIntent;
+
+
+    @Override
+    public void onEvent(int arg0, Bundle arg1) {
+        Log.i("Cyril", "onEvent");
+    }
+
+    @Override
+    public void onResults(Bundle results) {
+        ArrayList<String> matches = results
+                .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        String text = "";
+        for (String result : matches)
+            text += result + "\n";
+
+        Log.d("Cyril","Got speech " + text);
+    }
+
+    @Override
+    public void onReadyForSpeech( Bundle b ) {
+        Log.d("Cyril","Speech onReadyForSpeech");
+    }
+
+    @Override
+    public void onBeginningOfSpeech() {
+        Log.d("Cyril","Speech onBeginningOfSpeech");
+    }
+
+    @Override
+    public void onRmsChanged(float f) {
+        Log.d("Cyril","Speech onRmsChanged");
+    }
+
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+        Log.d("Cyril","Speech onBufferReceived " );
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        Log.d("Cyril","onEndOfSpeech");
+    }
+
+    @Override
+    public void onError(int i) {
+        Log.d("Cyril","Speech error " + i);
+    }
+
+    @Override
+    public void onPartialResults(Bundle results) {
+        ArrayList<String> matches = results
+                .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        String text = "";
+        for (String result : matches)
+            text += result + "\n";
+
+        Log.d("Cyril","Got partial speech " + text);
+    }
+    */
+
+    public static WavAudioRecorder getInstance(Context context) {
+
         WavAudioRecorder result = null;
         int i=0;
         do {
-            result = new WavAudioRecorder(AudioSource.MIC,
+            result = new WavAudioRecorder(context,AudioSource.MIC,
                     sampleRates[i],
                     AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT);
         } while((++i<sampleRates.length) & !(result.getState() == WavAudioRecorder.State.INITIALIZING));
+        Log.d("Cyril","Sample rate is " + result.audioRecorder.getSampleRate());
+
+
         return result;
     }
 
@@ -88,6 +167,7 @@ public class WavAudioRecorder {
         externalUpdateListener = l;
     }
 
+    //private boolean mLastOneWasLoud = false;
 
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
         //	periodic updates on the progress of the record head
@@ -100,6 +180,28 @@ public class WavAudioRecorder {
                 externalUpdateListener.onPeriodicNotification(recorder);
             }
             int numOfBytes = audioRecorder.read(buffer, 0, buffer.length); // read audio data to buffer
+            //short[] copy = new short[numOfBytes];
+            //for (int i=0;i<1000;i++) {
+            //    copy[i] = (short)buffer[i];
+            //}
+
+            long cnt = 0;
+            for (int i=0;i<(numOfBytes-2);i+=2) {
+                ByteBuffer bb = ByteBuffer.allocate(2);
+                bb.order(ByteOrder.LITTLE_ENDIAN);
+                bb.put(buffer[i]);
+                bb.put(buffer[i+1]);
+                short shortVal = bb.getShort(0);
+                if (shortVal >= 30000 ) {
+                    cnt += 1;
+                }
+            }
+            if (cnt >= 50) {
+                Log.d("Cyril","Loud! " + Long.toString(cnt));
+            }
+
+
+
 			//Log.d("Cyril", state + ":" + numOfBytes);
             try {
                 randomAccessWriter.write(buffer); 		  // write audio data to file
@@ -108,8 +210,10 @@ public class WavAudioRecorder {
                 Log.e("Cyril", "Error occured in updateListener, recording is aborted");
                 e.printStackTrace();
             }
-
+            //Log.d("Cyril", Float.toString( mPitchDetector.getPitch(copy)));
         }
+
+
         //	reached a notification marker set by setNotificationMarkerPosition(int)
         public void onMarkerReached(AudioRecord recorder) {
             if (externalUpdateListener != null) {
@@ -127,7 +231,11 @@ public class WavAudioRecorder {
      * In case of errors, no exception is thrown, but the state is set to ERROR
      *
      */
-    public WavAudioRecorder(int audioSource, int sampleRate, int channelConfig, int audioFormat) {
+    public WavAudioRecorder(Context context, int audioSource, int sampleRate, int channelConfig, int audioFormat) {
+
+        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        am.startBluetoothSco();
+
         try {
             if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
                 mBitsPerSample = 16;
@@ -165,6 +273,23 @@ public class WavAudioRecorder {
             audioRecorder.setPositionNotificationPeriod(mPeriodInFrames);
             filePath = null;
             state = State.INITIALIZING;
+
+/*
+            mSpeech = SpeechRecognizer.createSpeechRecognizer(context);
+            mSpeech.setRecognitionListener(this);
+            recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            mSpeech.startListening(recognizerIntent);
+            //recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,
+            //        "en");
+            //recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
+            //        this.getPackageName());
+            //recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            //        RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+            //recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+           // RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+           */
+
+
         } catch (Exception e) {
             if (e.getMessage() != null) {
                 Log.e("Cyril", e.getMessage());
@@ -173,6 +298,8 @@ public class WavAudioRecorder {
             }
             state = State.ERROR;
         }
+
+        //mPitchDetector = new Yin(audioRecorder.getSampleRate());
     }
 
     /**
@@ -317,6 +444,20 @@ public class WavAudioRecorder {
         }
     }
 
+    public void checkPoint() {
+        try {
+            randomAccessWriter.seek(4); // Write size to RIFF header
+            randomAccessWriter.writeInt(Integer.reverseBytes(36+payloadSize));
+
+            randomAccessWriter.seek(40); // Write size to Subchunk2Size field
+            randomAccessWriter.writeInt(Integer.reverseBytes(payloadSize));
+            randomAccessWriter.seek(randomAccessWriter.length());
+        } catch(IOException e) {
+            Log.e("Cyril", "I/O exception occured while writing to output file");
+            state = State.ERROR;
+        }
+        Log.d("Cyril","Audio checkpoint");
+    }
     /**
      *
      *
@@ -330,11 +471,7 @@ public class WavAudioRecorder {
             Log.d("Cyril","stop()");
             audioRecorder.stop();
             try {
-                randomAccessWriter.seek(4); // Write size to RIFF header
-                randomAccessWriter.writeInt(Integer.reverseBytes(36+payloadSize));
-
-                randomAccessWriter.seek(40); // Write size to Subchunk2Size field
-                randomAccessWriter.writeInt(Integer.reverseBytes(payloadSize));
+                checkPoint();
 
                 randomAccessWriter.close();
             } catch(IOException e) {

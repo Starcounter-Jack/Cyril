@@ -2,6 +2,9 @@ package com.example.jack.cyril;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.GeomagneticField;
@@ -10,33 +13,31 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-//import android.media.MediaRecorder;
-import android.media.AudioRecord;
-import android.os.Environment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
-import android.database.sqlite.*;
-import android.speech.tts.TextToSpeech;
-import android.app.Activity;
+import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import io.flic.lib.FlicBroadcastReceiverFlags;
+import io.flic.lib.FlicButton;
+import io.flic.lib.FlicButtonCallback;
+import io.flic.lib.FlicButtonCallbackFlags;
+import io.flic.lib.FlicManager;
+import io.flic.lib.FlicManagerInitializedCallback;
+
+//import io.flic.lib.FlicAppNotInstalledException;
+//import io.flic.lib.FlicBroadcastReceiverFlags;
+//import io.flic.lib.FlicButton;
+//import io.flic.lib.FlicManager;
+//import io.flic.lib.FlicManagerInitializedCallback;
 
 
 /**
@@ -46,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 public class Controller extends android.app.Activity implements SensorEventListener {
     private View mContentView;
 
+    private FlicManager mFlicManager;
     // ===============================
     // Three button logic
     // -------------------------------
@@ -64,10 +66,11 @@ public class Controller extends android.app.Activity implements SensorEventListe
     private TextView mCurrentCourseView;
     private TextView mAccuracyView;                 // GPS Accuracy             4m
 
-    private TextView mStatusView;                   // Status                   In pit
+      // Status                   In pit
     //                          At start line
     //                          Racing
     //                          Backtracking
+    private TextView mCurrentTargetLabelView;
     private TextView mCurrentTargetView;            // Current target           25/24
     private TextView mCurrentModeView;              // Backtracking
     private TextView mTimeView;                     // Time of day              12:31
@@ -125,6 +128,9 @@ public class Controller extends android.app.Activity implements SensorEventListe
 
         Log.d("Cyril","========= NEW SESSION =======");
 
+
+        FlicManager.setAppCredentials("Cyril", "8d7f7a58-cf68-411d-bda5-5a10b49293d3", "393a443a-46f2-4e23-a213-8543fcfebcee");
+
         super.onCreate(savedInstanceState);
 
 
@@ -153,6 +159,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
         // mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.contentView);
         mCurrentTargetView = (TextView) findViewById(R.id.currentTargetView);
+        mCurrentTargetLabelView = (TextView) findViewById(R.id.targetLabelView);
         mCurrentHeadingView = (TextView) findViewById(R.id.headingView);
         mCurrentCourseView = (TextView) findViewById(R.id.courseView);
         mRecordingTimeView = (TextView) findViewById(R.id.recordingTimeView);
@@ -176,6 +183,8 @@ public class Controller extends android.app.Activity implements SensorEventListe
         mDistanceToGoalView = (TextView) findViewById( R.id.goalDistanceView );
         mDistanceTravelledView = (TextView) findViewById( R.id.travelledView );
         mDistanceToGoalView = (TextView) findViewById( R.id.goalDistanceView );
+
+        mTimeView = (TextView) findViewById(R.id.timeOfDayView);
 
         // Set up the user interaction to manually show or hide the system UI.
         //mContentView.setOnClickListener(new View.OnClickListener() {
@@ -211,13 +220,128 @@ public class Controller extends android.app.Activity implements SensorEventListe
                     REQUEST_CODE_ASK_PERMISSIONS);
         }
 
+            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
 
+                @Override
+                public void onInitialized(FlicManager manager) {
+
+
+                    manager.initiateGrabButton(Controller.this);
+                    Log.d("Cyril", "Ready to use Flic manager");
+
+                    Controller.this.mFlicManager = manager;
+
+                    // Restore buttons grabbed in a previous run of the activity
+                    List<FlicButton> buttons = manager.getKnownButtons();
+                    for (FlicButton button : buttons) {
+                        String status = null;
+                        switch (button.getConnectionStatus()) {
+                            case FlicButton.BUTTON_DISCONNECTED:
+                                status = "disconnected";
+                                break;
+                            case FlicButton.BUTTON_CONNECTION_STARTED:
+                                status = "connection started";
+                                break;
+                            case FlicButton.BUTTON_CONNECTION_COMPLETED:
+                                status = "connection completed";
+                                break;
+                        }
+                        Log.d("Cyril", "Found an existing Flic button: " + button + ", status: " + status);
+                        setButtonCallback(button);
+                    }
+                }
+            });
+/*            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+                @Override
+                public void onInitialized(FlicManager manager) {
+                    manager.initiateGrabButton(Controller.this);
+                }
+            });
+        } catch (FlicAppNotInstalledException err) {
+            Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
+        }
+        */
 
         //updateThread.start();
 
         startRecording();
 
     }
+
+    private void setButtonCallback(FlicButton button) {
+        button.removeAllFlicButtonCallbacks();
+        button.addFlicButtonCallback(buttonCallback);
+        button.setFlicButtonCallbackFlags(FlicButtonCallbackFlags.UP_OR_DOWN);
+        button.setActiveMode(true);
+    }
+
+    private FlicButtonCallback buttonCallback = new FlicButtonCallback() {
+        @Override
+        public void onButtonUpOrDown(FlicButton button, boolean wasQueued, int timeDiff, boolean isUp, boolean isDown) {
+            //final String text = button + " was " + (isDown ? "pressed" : "released");
+            //Log.d("Cyril", text);
+            final boolean down = isDown;
+            final String id  = button.getButtonId();
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (down) {
+                        Log.d("Cyril","Flic: " + id);
+                        if (id.equals("80:e4:da:71:86:c3") || id.equals("80:e4:da:71:4c:a8") ){
+                            mTrackRecorder.hitAction();
+                        } else if (id.equals("80:e4:da:71:5a:7e")) {
+                            mTrackRecorder.hitToggleMode();
+                        } else if (id.equals("80:e4:da:71:ae:21")) {
+                            mTrackRecorder.hitPrevious();
+                        } else if (id.equals("80:e4:da:71:3c:23")) {
+                            mTrackRecorder.hitNext();
+                        }
+                        else {
+                            Log.d("Cyril", "UNKNOWN FLIC:" + id);
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    public static final String CMDNAME = "command";
+    public static final String CMDTOGGLEPAUSE = "togglepause";
+    public static final String CMDSTOP = "stop";
+    public static final String CMDPAUSE = "pause";
+    public static final String CMDPLAY = "play";
+    public static final String CMDPREVIOUS = "previous";
+    public static final String CMDNEXT = "next";
+    public static final String TOGGLEPAUSE_ACTION = "com.android.music.musicservicecommand.togglepause";
+    public static final String PAUSE_ACTION = "com.android.music.musicservicecommand.pause";
+    public static final String PREVIOUS_ACTION = "com.android.music.musicservicecommand.previous";
+    public static final String NEXT_ACTION = "com.android.music.musicservicecommand.next";
+
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            String cmd = intent.getStringExtra("command");
+            Log.d("Cyril","mIntentReceiver.onReceive " + action + " / " + cmd);
+            if (CMDNEXT.equals(cmd) || NEXT_ACTION.equals(action)) {
+                Log.d("Cyril","NEXT");
+            } else if (CMDPREVIOUS.equals(cmd) || PREVIOUS_ACTION.equals(action)) {
+                Log.d("Cyril","PREV");
+            } else if (CMDTOGGLEPAUSE.equals(cmd) || TOGGLEPAUSE_ACTION.equals(action)) {
+                    Log.d("Cyril","PAUSEPLAY");
+            } else if (CMDPAUSE.equals(cmd) || PAUSE_ACTION.equals(action)) {
+                Log.d("Cyril","PAUSE");
+            } else if (CMDPLAY.equals(cmd)) {
+                //play();
+                Log.d("Cyril","PLAY");
+            } else if (CMDSTOP.equals(cmd)) {
+                Log.d("Cyril","STOP");
+            }
+        }
+    };
+
+
 
 
 
@@ -266,16 +390,33 @@ public class Controller extends android.app.Activity implements SensorEventListe
         }
     };
 
+    private boolean onLeg() {
+        TrackRecorder.Mode mode = mTrackRecorder.getCurrentMode();
+        return ( mode != TrackRecorder.Mode.Backtracking_Free && mode != TrackRecorder.Mode.Freeriding );
+    }
+
     private void updateText( Boolean newLocation ) {
 
         long now = java.lang.System.currentTimeMillis();
-        mRecordingTimeView.setText(millisecondsToTimeString(now - mTrackRecorder.getTrack().BaseTime,true));
-        mCurrentTargetView.setText( Integer.toString(mTrackRecorder.getFocusedMarkerNo()) + "/" + Integer.toString(mTrackRecorder.getMarkerCount() ) );
+        mRecordingTimeView.setText(mTrackRecorder.formatTime(now - mTrackRecorder.getTrack().BaseTime,true));
+
+        TrackRecorder.Mode mode = mTrackRecorder.getCurrentMode();
+        if (!onLeg()) {
+            mCurrentTargetLabelView.setText( "Marker");
+            mCurrentTargetView.setText( Integer.toString(mTrackRecorder.getFocusedMarkerNo()) + "/" + Integer.toString(mTrackRecorder.getMarkerCount() ) );
+        }
+        else {
+            mCurrentTargetLabelView.setText( "Waypoint");
+            mCurrentTargetView.setText( Integer.toString(mTrackRecorder.getFocusedWayPointNo()) + "/" + Integer.toString(mTrackRecorder.getWayPointCount() ) );
+        }
+
         mCurrentModeView.setText( mTrackRecorder.getCurrentModeString() );
+        mTimeView.setText( mTrackRecorder.formatTime(mTrackRecorder.getTimeOfDay(),true) );
+
+        Location first = mTrackRecorder.getFirstLocation();
 
         if (newLocation) {
             Location location = mTrackRecorder.getLastKnownLocation();
-            Location first = mTrackRecorder.getFirstLocation();
 
 
             String accuracy;
@@ -295,78 +436,87 @@ public class Controller extends android.app.Activity implements SensorEventListe
             originLat.setLongitude(location.getLongitude());
             Location originLong = new Location(first);
             originLong.setLatitude(location.getLatitude());
-            mOffsetLatitudeView.setText(formatDistance(location.distanceTo(originLat),false));
-            mOffsetLongitudeView.setText(formatDistance(location.distanceTo(originLong),false));
+            mOffsetLatitudeView.setText(mTrackRecorder.formatDistance(location.distanceTo(originLat),false));
+            mOffsetLongitudeView.setText(mTrackRecorder.formatDistance(location.distanceTo(originLong),false));
 
 
-            mDistanceTravelledView.setText(formatDistance(first.distanceTo(location),false));
-            mDistanceView.setText(Double.toString(mTrackRecorder.getLastKnownDistance()));
+            mDistanceTravelledView.setText(mTrackRecorder.formatDistance(first.distanceTo(location),false));
             mLocationCountView.setText(Long.toString(mTrackRecorder.getLocationCount()));
 
             mDistanceToGoalView.setText( "n/a" );
 
+
+
+
+        }
+
+        if (onLeg() && first != null) {
+            WayPoint wp = mTrackRecorder.getFocusedWayPoint();
+            if (wp != null) {
+                Location here = mTrackRecorder.getLastKnownLocation();
+                Location target = wp.getLocation(here);
+                double targetDistance = target.distanceTo(here);
+                mDistanceView.setText(mTrackRecorder.formatDistance(targetDistance,false));
+                mTargetLatitudeView.setText(Double.toString(wp.Latitude));
+                mTargetLongitudeView.setText(Double.toString(wp.Longitude));
+                Location hereLat = new Location(target);
+                hereLat.setLongitude(here.getLongitude());
+                Location hereLong = new Location(target);
+                hereLong.setLatitude(here.getLatitude());
+
+                mTargetOffsetLatitudeView.setText(mTrackRecorder.formatDistance(target.distanceTo(hereLat), false));
+                mTargetOffsetLongitudeView.setText(mTrackRecorder.formatDistance(target.distanceTo(hereLong), false));
+            }
+            else {
+                mDistanceView.setText("n/a");
+                mTargetLatitudeView.setText("n/a");
+                mTargetLongitudeView.setText("n/a");
+                mTargetOffsetLatitudeView.setText("n/a");
+                mTargetOffsetLongitudeView.setText("n/a");
+            }
         }
 
 
+
     }
 
-
-    void hitAction() {
-        mTrackRecorder.createMarker();
-        mTrackRecorder.goForward();
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+            @Override
+            public void onInitialized(FlicManager manager) {
+                FlicButton button = manager.completeGrabButton(requestCode, resultCode, data);
+                if (button != null) {
+                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.UP_OR_DOWN | FlicBroadcastReceiverFlags.REMOVED);
+                    Toast.makeText(Controller.this, "Grabbed a button", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(Controller.this, "Did not grab any button", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-    void hitToggleMode() {
-        mTrackRecorder.toggleMode();
-    }
 
 
     void onClickModeButton(View v) {
         Log.d("Cyril","MODE TOGGLE ACTION!");
-        hitToggleMode();
+        mTrackRecorder.hitToggleMode();
     }
 
     void onClickActionButton(View v) {
         Log.d("Cyril","CLICKED ACTION!");
-        hitAction();
+        mTrackRecorder.hitAction();
     }
 
     void onClickPreviousButton(View v) {
-        Log.d("Cyril","CLICKED PREVIOUS!");
-        mTrackRecorder.goBackward();
+        mTrackRecorder.hitPrevious();
     }
 
     void onClickNextButton(View v) {
-        Log.d("Cyril","CLICKED NEXT!");
-        mTrackRecorder.goForward();
+        mTrackRecorder.hitNext();
     }
 
 
-    String millisecondsToTimeString( long millis, Boolean fractions ) {
-
-        long hours = TimeUnit.MILLISECONDS.toHours(millis);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-        if (fractions ) {
-            return String.format("%02d:%02d:%02d:%02d",
-                    hours,
-                    minutes - TimeUnit.HOURS.toMinutes(hours),
-                    seconds - TimeUnit.MINUTES.toSeconds(minutes),
-                    millis - TimeUnit.SECONDS.toMillis(seconds)
-            );
-        }
-        return String.format("%02d:%02d:%02d:%02d",
-                hours,
-                minutes - TimeUnit.HOURS.toMinutes(hours),
-                seconds - TimeUnit.MINUTES.toSeconds(minutes));
-    }
-
-    String formatDistance( double m, Boolean showDecimal ) {
-        if (showDecimal) {
-            return String.format(Locale.US, "%1$,.1f", m) + "m";
-        }
-        return String.format(Locale.US, "%1$,.0f", m) + "m";
-    }
 
 
 
@@ -380,7 +530,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
             case (KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE):
             case (KeyEvent.KEYCODE_BACK):
             {
-                hitAction();
+                mTrackRecorder.hitAction();
                 break;
             }
             case (KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD):
@@ -397,7 +547,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
             }
         }
 
-        return true;
+        return false;
     }
 
 

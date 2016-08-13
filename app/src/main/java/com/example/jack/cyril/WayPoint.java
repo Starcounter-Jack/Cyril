@@ -3,6 +3,8 @@ package com.example.jack.cyril;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.graphics.drawable.LayerDrawable;
+import android.location.Location;
 
 enum WayPointStatus {
     NotVisited(1),
@@ -39,6 +41,8 @@ public class WayPoint {
     public double Longitude = -1;
     public double Latitude = -1;
     public WayPointStatus Status = WayPointStatus.NotVisited;
+    public String Description;
+    public String Direction;
 
     private SQLiteDatabase mDb;
     public static SQLiteStatement mInsertStmt;
@@ -57,6 +61,13 @@ public class WayPoint {
                     "Status INTEGER);");
             mInsertStmt = db.compileStatement("INSERT INTO WayPoint VALUES(?,?,?,?,?,?,?,?);");
         }
+    }
+
+    public Location getLocation( Location location ) {
+        Location l = new Location(location);
+        l.setLatitude(Latitude);
+        l.setLongitude(Longitude);
+        return l;
     }
 
     public static WayPoint getWayPoint(int id ) {
