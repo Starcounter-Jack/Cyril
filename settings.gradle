@@ -1,1 +1,1 @@
-include ':app', ':fliclib'
+include ':app'

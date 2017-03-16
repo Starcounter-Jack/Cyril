@@ -105,7 +105,7 @@
             app:scale_width="300" />
 
         <TextView
-            android:text="13°"
+            android:text="n/a"
             android:id="@+id/courseView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -137,7 +137,7 @@
 
 
         <TextView
-            android:text="12°"
+            android:text="n/a"
             android:id="@+id/headingView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -183,8 +183,8 @@
             app:scale_width="300" />
 
         <TextView
-            android:text="Target distance"
-            android:id="@+id/targetDistanceLabelView"
+            android:text="Distance"
+            android:id="@+id/distanceLabelView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -193,10 +193,10 @@
             android:textIsSelectable="false"
             android:textStyle="bold"
             app:scale_height="50"
-            app:scale_left="150"
+            app:scale_left="0"
             app:scale_textsize="30"
             app:scale_top="329"
-            app:scale_width="600" />
+            app:scale_width="900" />
 
         <TextView
             android:text="1,502 m"
@@ -208,10 +208,10 @@
             android:textColor="#ffffff"
             android:textStyle="bold"
             app:scale_height="170"
-            app:scale_left="150"
+            app:scale_left="0"
             app:scale_textsize="150"
             app:scale_top="345"
-            app:scale_width="600" />
+            app:scale_width="900" />
 
         <TextView
             android:text="Offset lon"
@@ -417,7 +417,7 @@
             app:scale_width="225" />
 
         <TextView
-            android:text="100"
+            android:text=""
             android:id="@+id/targetOffsetLongitudeView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -448,7 +448,7 @@
             app:scale_width="225" />
 
         <TextView
-            android:text="200"
+            android:text=""
             android:id="@+id/targetOffsetLatitudeView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -543,7 +543,7 @@
             app:scale_width="225" />
 
         <TextView
-            android:text="1000"
+            android:text=""
             android:id="@+id/locationCountView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -605,7 +605,7 @@
             app:scale_width="225" />
 
         <TextView
-            android:text="1000"
+            android:text=""
             android:id="@+id/fooView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

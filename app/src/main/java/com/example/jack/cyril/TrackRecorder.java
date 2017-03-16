@@ -25,6 +25,17 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 
+// Paused
+// Running
+// Recovery
+
+
+// Real / simulator
+// Okey-dokey / Mismatch
+
+
+
+
 public class TrackRecorder {
 
     public static class UpdateListener {
@@ -33,12 +44,16 @@ public class TrackRecorder {
     }
 
     public enum Mode {
+        Target,
+        Roadbook,
         Leg,
         Freeriding,
         Backtracking_Free,
         Backtracking_Leg,
         Error
     }
+
+    public String errorStr = "unknown";
 
     Mode mCurrentMode;
 
@@ -55,6 +70,10 @@ public class TrackRecorder {
     private Location mFirstLocation;
     private Location mStart;
     private Location mFinish;
+//    private Location mPreviousPreviousOdoMeasurement = null;
+    private Location mPreviousOdoMeasurement = null;
+    private Location mPreviousPreviousOdoMeasurement = null;
+    private double mAccuracy = 0;
 
 
     private WavAudioRecorder mRecorder = null;
@@ -110,12 +129,13 @@ public class TrackRecorder {
 
        // CappedVector.test();
 
-        mCurrentMode = TrackRecorder.Mode.Freeriding;
+        mCurrentMode = TrackRecorder.Mode.Roadbook;
 
 
         //mListener = l;
         locationManager = lm;
         mContext = c;
+        //mFileDirectory = this.mContext.getFilesDir().getAbsolutePath();
         mFileDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
     }
 
@@ -242,7 +262,67 @@ public class TrackRecorder {
 
     }
 
+    public void Reset() {
+        stopAudioRecording();
+        mFirstLocation = mLastLocation;
+        mTravelled = 0;
+        startAudioRecording();
+    }
+
     public void start() {
+
+         locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                mOlderLocation = mLastLocation;
+                if (mPreviousOdoMeasurement == null) {
+                    mPreviousOdoMeasurement = location;
+                    mPreviousPreviousOdoMeasurement = location;
+                }
+                else {
+                    double delta = location.distanceTo(mPreviousOdoMeasurement);
+                    if (delta >=  mAccuracy * 2 ) {
+                        mTravelled += delta;
+                        mPreviousPreviousOdoMeasurement = mPreviousOdoMeasurement;
+                        mPreviousOdoMeasurement = location;
+                    }
+                }
+
+                mLastLocation = location;
+                mLocationCount++;
+                long timeOffset = getNowTimeOffset();
+                TrackEntry t = new TrackEntry(db);
+                t.TrackId = mTrack.TrackId;
+                t.Time = timeOffset;
+                t.Longitude = location.getLongitude();
+                t.Latitude = location.getLatitude();
+                t.Accuracy =  mAccuracy = location.getAccuracy();
+                t.Insert();
+                if (mOlderLocation == null) {
+                    mFirstLocation = location;
+                }
+                mRecorder.checkPoint();
+                // mListener.onLocationChanged(location);
+                mExternalUpdateListener.onUpdate(true);
+            }
+
+
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onStatusChanged(String str, int i, Bundle b) {
+
+            }
+        };
 
         t1 = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
             @Override
@@ -332,6 +412,9 @@ public class TrackRecorder {
             case Leg:
                 str = getApproachingString(false);
                 break;
+            case Roadbook:
+                str = "Roadbook";
+                break;
             case Error:
                 str = "Error";
                 break;
@@ -344,7 +427,7 @@ public class TrackRecorder {
     public void sayMode() {
         switch (mCurrentMode) {
             case Backtracking_Leg:
-                say("Backtracking leg");
+                say("Backtracking Leg");
                 break;
             case Backtracking_Free:
                 say("Backtracking free");
@@ -383,50 +466,15 @@ public class TrackRecorder {
         return (java.lang.System.currentTimeMillis()) - mTrack.BaseTime;
     }
 
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            mOlderLocation = mLastLocation;
-            mLastLocation = location;
-            mLocationCount++;
-                long timeOffset = getNowTimeOffset();
-                TrackEntry t = new TrackEntry(db);
-                t.TrackId = mTrack.TrackId;
-                t.Time = timeOffset;
-                t.Longitude = location.getLongitude();
-                t.Latitude = location.getLatitude();
-                t.Accuracy = location.getAccuracy();
-                t.Insert();
-            if (mOlderLocation == null) {
-                mFirstLocation = location;
-            }
-            mRecorder.checkPoint();
-           // mListener.onLocationChanged(location);
-            mExternalUpdateListener.onUpdate(true);
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onStatusChanged(String str, int i, Bundle b) {
-
-        }
-    };
+    private LocationListener locationListener;
 
 
     private void readJson() {
         String str;
+        String path = mFileDirectory + "/cyril.json";
 
         try {
-            File file = new File(mFileDirectory + "/cyril.json");
+            File file = new File(path);
 
             byte[] fileBytes = FileHelper.readBytes(file);
 
@@ -434,6 +482,7 @@ public class TrackRecorder {
         }
         catch (Exception e) {
             Log.e("Cyril",e.getMessage());
+            this.errorStr = "Cannot read " + path;
             mCurrentMode = Mode.Error;
             return;
         }
@@ -445,7 +494,7 @@ public class TrackRecorder {
             JSONArray arr = obj.getJSONArray("roadBook");
             for (int t = 0; t < arr.length(); t++) {
                 JSONObject elem = arr.getJSONObject(t);
-                int no = elem.getInt("no");
+                String no = elem.getString("id");
                 double lon = elem.getDouble("lon");
                 double lat = elem.getDouble("lat");
                 WayPoint wp = new WayPoint(db);
@@ -481,8 +530,15 @@ public class TrackRecorder {
     }
 
 
-    public double getTravellDistance() {
-        return mTravelled;
+    public double getTravelDistance() {
+        double distanceSinceMeasurement = 0;
+        if (mLastLocation != null && mPreviousOdoMeasurement != null) {
+            distanceSinceMeasurement = mLastLocation.distanceTo(mPreviousOdoMeasurement);
+            //if (distanceSinceMeasurement > 0) {
+            //    distanceSinceMeasurement *= 10000000; // += 100000;
+            //}
+        }
+        return mTravelled + distanceSinceMeasurement;
     }
 
 
@@ -507,18 +563,21 @@ public class TrackRecorder {
         t1.speak( text, TextToSpeech.QUEUE_FLUSH, null);
     }
 
-
-    public void stop() {
-        if (locationListener != null) {
-            locationManager.removeUpdates(locationListener);
-            locationListener = null;
-        }
+    public void stopAudioRecording() {
         if (mRecorder != null) {
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
             //Track.mNextAudioPart++;
         }
+    }
+    
+    public void stop() {
+        if (locationListener != null) {
+            locationManager.removeUpdates(locationListener);
+            locationListener = null;
+        }
+        stopAudioRecording();
 
     }
 
@@ -603,9 +662,9 @@ public class TrackRecorder {
 
     static String formatDistance( double m, Boolean showDecimal ) {
         if (showDecimal) {
-            return String.format(Locale.US, "%1$,.1f", m) + "m";
+            return String.format(Locale.US, "%1$,.3f", m/1000);
         }
-        return String.format(Locale.US, "%1$,.0f", m) + "m";
+        return String.format(Locale.US, "%1$,.0f", m) + " m";
     }
 
     long getTimeOfDay() {

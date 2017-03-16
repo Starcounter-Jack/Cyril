@@ -56,7 +56,7 @@
 
 
         <TextView
-            android:id="@+id/latitudeLabel"
+            android:id="@+id/latitudeLabel666"
             android:keepScreenOn="true"
             android:text="Time"
             android:textColor="#ffffff"

@@ -18,7 +18,9 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,12 +28,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import io.flic.lib.FlicBroadcastReceiverFlags;
-import io.flic.lib.FlicButton;
-import io.flic.lib.FlicButtonCallback;
-import io.flic.lib.FlicButtonCallbackFlags;
-import io.flic.lib.FlicManager;
-import io.flic.lib.FlicManagerInitializedCallback;
+//import io.flic.lib.FlicBroadcastReceiverFlags;
+//import io.flic.lib.FlicButton;
+//import io.flic.lib.FlicButtonCallback;
+//import io.flic.lib.FlicButtonCallbackFlags;
+//import io.flic.lib.FlicManager;
+//import io.flic.lib.FlicManagerInitializedCallback;
 
 //import io.flic.lib.FlicAppNotInstalledException;
 //import io.flic.lib.FlicBroadcastReceiverFlags;
@@ -44,10 +46,10 @@ import io.flic.lib.FlicManagerInitializedCallback;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class Controller extends android.app.Activity implements SensorEventListener {
+public class Controller extends android.app.Activity implements SensorEventListener, View.OnTouchListener {
     private View mContentView;
 
-    private FlicManager mFlicManager;
+    // private FlicManager mFlicManager;
     // ===============================
     // Three button logic
     // -------------------------------
@@ -61,6 +63,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
     private View mFrameView;
 
     private TextView mDistanceView;                 // Distance to target       3 514 metres
+    private TextView mDistanceLabelView;
     private TextView mTargetHeadingView;            // Target Heading           13°
     private TextView mCurrentHeadingView;           // Current Heading          15°
     private TextView mCurrentCourseView;
@@ -98,6 +101,8 @@ public class Controller extends android.app.Activity implements SensorEventListe
     private TextView mAudioSizeView;                 // Audio recording size     1 123 000
     private TextView mBatteryView;                  // Battery status           80%
 
+    private FrameLayout mMenuButton;
+
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private TrackRecorder mTrackRecorder;
 
@@ -119,6 +124,28 @@ public class Controller extends android.app.Activity implements SensorEventListe
 
 
 
+    public boolean onTouch(View v, MotionEvent e ) {
+
+        final int action = e.getAction();
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN: {
+//                final float x = ev.getX();
+//                final float y = ev.getY();
+
+//                mLastTouchX = x;
+//                mLastTouchY = y;
+
+                // Save the ID of this pointer
+//                mActivePointerId = ev.getPointerId(0);
+                if (v == mContentView ) {
+                    MenuDialog m = new MenuDialog(this);
+                    m.show(getFragmentManager(),"test");
+                }
+                break;
+            }
+        }
+        return true;
+    }
 
 
 
@@ -129,11 +156,12 @@ public class Controller extends android.app.Activity implements SensorEventListe
         Log.d("Cyril","========= NEW SESSION =======");
 
 
-        FlicManager.setAppCredentials("Cyril", "8d7f7a58-cf68-411d-bda5-5a10b49293d3", "393a443a-46f2-4e23-a213-8543fcfebcee");
+        //FlicManager.setAppCredentials("Cyril", "8d7f7a58-cf68-411d-bda5-5a10b49293d3", "393a443a-46f2-4e23-a213-8543fcfebcee");
 
         super.onCreate(savedInstanceState);
 
 
+/* #ifdef COMPASS
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -142,6 +170,8 @@ public class Controller extends android.app.Activity implements SensorEventListe
 
         mSensorManager.registerListener(this, mMagneticSensor,SensorManager.SENSOR_DELAY_GAME); // SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, mAccelerometer,SensorManager.SENSOR_DELAY_GAME); // SensorManager.SENSOR_DELAY_GAME);
+ #endif
+*/
         setContentView(R.layout.activity_controller);
 
         //Log.d("Cyril","Trying to start background recording service 1");
@@ -179,10 +209,12 @@ public class Controller extends android.app.Activity implements SensorEventListe
         mTimeView = (TextView) findViewById( R.id.fullscreen_time);
         mAccuracyView = (TextView) findViewById( R.id.accuracyView );
         mDistanceView = (TextView) findViewById( R.id.targetDistanceView );
+        mDistanceLabelView = (TextView) findViewById( R.id.distanceLabelView);
         mLocationCountView = (TextView) findViewById( R.id.locationCountView );
         mDistanceToGoalView = (TextView) findViewById( R.id.goalDistanceView );
         mDistanceTravelledView = (TextView) findViewById( R.id.travelledView );
         mDistanceToGoalView = (TextView) findViewById( R.id.goalDistanceView );
+        mMenuButton = (FrameLayout) findViewById( R.id.menuButton);
 
         mTimeView = (TextView) findViewById(R.id.timeOfDayView);
 
@@ -220,7 +252,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
                     REQUEST_CODE_ASK_PERMISSIONS);
         }
 
-            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+/*            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
 
                 @Override
                 public void onInitialized(FlicManager manager) {
@@ -251,7 +283,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
                     }
                 }
             });
-/*            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
+                FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
                 @Override
                 public void onInitialized(FlicManager manager) {
                     manager.initiateGrabButton(Controller.this);
@@ -266,15 +298,17 @@ public class Controller extends android.app.Activity implements SensorEventListe
 
         startRecording();
 
+        //mMenuButton.setOnTouchListener(this);
+        mContentView.setOnTouchListener(this);
+
     }
 
-    private void setButtonCallback(FlicButton button) {
+/*    private void setButtonCallback(FlicButton button) {
         button.removeAllFlicButtonCallbacks();
         button.addFlicButtonCallback(buttonCallback);
         button.setFlicButtonCallbackFlags(FlicButtonCallbackFlags.UP_OR_DOWN);
         button.setActiveMode(true);
     }
-
     private FlicButtonCallback buttonCallback = new FlicButtonCallback() {
         @Override
         public void onButtonUpOrDown(FlicButton button, boolean wasQueued, int timeDiff, boolean isUp, boolean isDown) {
@@ -305,6 +339,8 @@ public class Controller extends android.app.Activity implements SensorEventListe
             });
         }
     };
+    */
+
 
     public static final String CMDNAME = "command";
     public static final String CMDTOGGLEPAUSE = "togglepause";
@@ -390,19 +426,21 @@ public class Controller extends android.app.Activity implements SensorEventListe
         }
     };
 
-    private boolean onLeg() {
+    private boolean inTargetMode() {
         TrackRecorder.Mode mode = mTrackRecorder.getCurrentMode();
-        return ( mode != TrackRecorder.Mode.Backtracking_Free && mode != TrackRecorder.Mode.Freeriding );
+        return ( mode != TrackRecorder.Mode.Roadbook && mode != TrackRecorder.Mode.Backtracking_Free && mode != TrackRecorder.Mode.Freeriding );
     }
 
-    private void updateText( Boolean newLocation ) {
 
-        long now = java.lang.System.currentTimeMillis();
+
+        private void updateText( Boolean newLocation ) {
+
+            long now = java.lang.System.currentTimeMillis();
         mRecordingTimeView.setText(mTrackRecorder.formatTime(now - mTrackRecorder.getTrack().BaseTime,true));
 
         TrackRecorder.Mode mode = mTrackRecorder.getCurrentMode();
-        if (!onLeg()) {
-            mCurrentTargetLabelView.setText( "Marker");
+        if (!inTargetMode()) {
+            mCurrentTargetLabelView.setText( "Roadbook");
             mCurrentTargetView.setText( Integer.toString(mTrackRecorder.getFocusedMarkerNo()) + "/" + Integer.toString(mTrackRecorder.getMarkerCount() ) );
         }
         else {
@@ -450,13 +488,18 @@ public class Controller extends android.app.Activity implements SensorEventListe
 
         }
 
-        if (onLeg() && first != null) {
-            WayPoint wp = mTrackRecorder.getFocusedWayPoint();
+        WayPoint wp = null;
+
+        if (inTargetMode() && first != null) {
+            wp = mTrackRecorder.getFocusedWayPoint();
             if (wp != null) {
                 Location here = mTrackRecorder.getLastKnownLocation();
                 Location target = wp.getLocation(here);
                 double targetDistance = target.distanceTo(here);
+                mDistanceLabelView.setText("Target distance");
+
                 mDistanceView.setText(mTrackRecorder.formatDistance(targetDistance,false));
+
                 mTargetLatitudeView.setText(Double.toString(wp.Latitude));
                 mTargetLongitudeView.setText(Double.toString(wp.Longitude));
                 Location hereLat = new Location(target);
@@ -467,13 +510,15 @@ public class Controller extends android.app.Activity implements SensorEventListe
                 mTargetOffsetLatitudeView.setText(mTrackRecorder.formatDistance(target.distanceTo(hereLat), false));
                 mTargetOffsetLongitudeView.setText(mTrackRecorder.formatDistance(target.distanceTo(hereLong), false));
             }
-            else {
-                mDistanceView.setText("n/a");
-                mTargetLatitudeView.setText("n/a");
-                mTargetLongitudeView.setText("n/a");
-                mTargetOffsetLatitudeView.setText("n/a");
-                mTargetOffsetLongitudeView.setText("n/a");
-            }
+        }
+        if (wp == null) {
+            mDistanceView.setText(mTrackRecorder.formatDistance(mTrackRecorder.getTravelDistance(), true));
+//            mDistanceView.setText("n/a");
+            mDistanceLabelView.setText("Trip");
+            mTargetLatitudeView.setText("n/a");
+            mTargetLongitudeView.setText("n/a");
+            mTargetOffsetLatitudeView.setText("n/a");
+            mTargetOffsetLongitudeView.setText("n/a");
         }
 
 
@@ -482,6 +527,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        /*
         FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
             @Override
             public void onInitialized(FlicManager manager) {
@@ -494,6 +540,7 @@ public class Controller extends android.app.Activity implements SensorEventListe
                 }
             }
         });
+        */
     }
 
 
@@ -550,6 +597,9 @@ public class Controller extends android.app.Activity implements SensorEventListe
         return false;
     }
 
+    public void Reset() {
+        mTrackRecorder.Reset();
+    }
 
     public void stopRecording() {
 

@@ -35,7 +35,7 @@ public class WayPoint {
 
     public int TrackId;
     public long Time;
-    public int WayPointId;
+    public String WayPointId;
     public double SegmentDistance = -1;
     public double TotalDistance = -1;
     public double Longitude = -1;
@@ -53,7 +53,7 @@ public class WayPoint {
             db.execSQL("CREATE TABLE IF NOT EXISTS WayPoint (" +
                     "Track INTEGER, " +
                     "Time INTEGER, " +
-                    "WayPointId INTEGER, " +
+                    "WayPointId TEXT, " +
                     "SegmentDistance DOUBLE, " +
                     "TotalDistance DOUBLE, " +
                     "Longitude DOUBLE, " +
@@ -70,7 +70,7 @@ public class WayPoint {
         return l;
     }
 
-    public static WayPoint getWayPoint(int id ) {
+    public static WayPoint getWayPoint(String id ) {
         throw new RuntimeException("Not implemented");
     }
 
@@ -79,7 +79,7 @@ public class WayPoint {
             mDb.beginTransaction();
             mInsertStmt.bindLong(WayPoint.Col_TrackId, TrackId);
             mInsertStmt.bindLong(WayPoint.Col_Time, Time);
-            mInsertStmt.bindLong(WayPoint.Col_WayPointId, WayPointId);
+            mInsertStmt.bindString(WayPoint.Col_WayPointId, WayPointId);
             mInsertStmt.bindDouble(WayPoint.Col_SegmentDistance, SegmentDistance);
             mInsertStmt.bindDouble(WayPoint.Col_TotalDistance, TotalDistance);
             mInsertStmt.bindDouble(WayPoint.Col_Longitude,Longitude);
